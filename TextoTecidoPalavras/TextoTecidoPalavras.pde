@@ -26,6 +26,9 @@ import java.util.Arrays;
 String texto = "";
 boolean atualizarLeioute = true;
 
+String NOME_ARQUIVO_TEXTO = "arquivo.txt";
+ArquivoTexto arquivo;
+
 String quebraLinha = "\n\r\f";
 String separadoresPalavras = "'\"?!:,.;/() \b"+quebraLinha;
 String[] textoSeparadoPorPalavras;
@@ -117,10 +120,14 @@ void setup()
   textAlign(CENTER);
 
   limpaTudo();
+  
+  arquivo = new ArquivoTexto (NOME_ARQUIVO_TEXTO);
 }
 
 void draw()
 {
+  texto = arquivo.texto;
+  
   background(0);
   colorMode(HSB);
   fill(255, 0, 255);
