@@ -107,7 +107,7 @@ boolean exibirStatusTecladoMouse = true;
 
 void setup()
 {
-  size(800,600);
+  size(800, 600);
   //fullScreen();
   background (0);
   fonte500 = loadFont("Cantarell-Bold-500.vlw");
@@ -120,14 +120,15 @@ void setup()
   textAlign(CENTER);
 
   limpaTudo();
-  
+
   arquivo = new ArquivoTexto (NOME_ARQUIVO_TEXTO);
+  arquivo.iniciaThreadLeitura();
 }
 
 void draw()
 {
   texto = arquivo.texto;
-  
+
   background(0);
   colorMode(HSB);
   fill(255, 0, 255);
@@ -362,7 +363,7 @@ boolean analisaTexto() {
   // Guarda o índice da palavra em textoSeparadoPorPalavras que está sendo analisada
   // em cada iteração do for.
   int palavraAtual = 0;
-  
+
   // Para auxiliar a contagem de freqüência das palavras, inicia estrutura palavrasComIndice
   // que guarda as palavras encontradas, sem repetí-las e guardando o índice correspondente no
   // array de palavras textoSeparadoPorPalavras.
@@ -379,7 +380,7 @@ boolean analisaTexto() {
 
   // Inicia lista de palavras encontradas, sem repetição.
   listaDePalavras = new Palavra[texto.length()];
-  
+
   numPalavras = 0;  // Número total de palavras sem contar as repetições.
 
   float larguraLinhaPx = 0;  // largura da linha na tela em número de pixels
@@ -388,7 +389,7 @@ boolean analisaTexto() {
   // Guarda a posição normalizada em relação à tela (entre 0 e 1)
   // em que deverá ser colocado o caractere atual de cada iteração do for.
   PVector posVarredura = new PVector(0, alturaTexto);  
-  
+
   // Informa se o caractere da iteração anterior era um separador de palavras.
   boolean caracAnteriorEhSeparador = true;
 
@@ -405,9 +406,9 @@ boolean analisaTexto() {
 
     //Calcula qual deverá ser a posição do caractere atual em relação à tela.
     textSize(tamTexto*height); // define o tamanho do texto para textWidth() poder calcular
-                               // a largura na tela do caractere atual.
+    // a largura na tela do caractere atual.
     float larguraCaracPx = textWidth(texto.charAt(i));      //Largura que o caractere atual ocupará na tela em pixels
-  
+
     //Se caractere atual quebra linha
     if (match(""+texto.charAt(i), "["+quebraLinha+"]") != null) {
       // Cria um novo caractere informando a posição do posVarredura, largura q o caractere ocupa,
@@ -423,7 +424,7 @@ boolean analisaTexto() {
         if (ajustarParaExibirTextoCompleto) {    // Se estiver exibindo texto todo...
           retorno = false;                       // analisaTexto() retorna falso, pois precisa ser chamada de novo
           break;                                 // e para o for. Isso serve para fazer o efeito de animação do
-                                                 // texto preenchendo.
+          // texto preenchendo.
         }
       }
     } else { //Se caractere atual não quebra linha
@@ -440,7 +441,7 @@ boolean analisaTexto() {
               tamTexto *= larguraAreaTexto*width/(float)larguraLinhaPx;
               retorno = false;               // analisaTexto() retorna falso, pois precisa ser chamada de novo
               break;                         // e para o for. Isso serve para fazer o efeito de animação do
-                                             // texto preenchendo.
+              // texto preenchendo.
             } else { // a palavra sozinha não ultrapassa a largura da área de texto.
               posVarredura.y += tamTexto;    // passa o cursor para próxima linha.
               posVarredura.x = 0;            // posiciona o cursor no lado esquerdo.
@@ -517,11 +518,11 @@ boolean adicionarLinha(float alturaAreaTexto) {
   numLinhas++;
   if (alturaTexto > alturaAreaTexto) {          //Se altura do texto ultrapassar o limite
     if (ajustarParaExibirTextoCompleto) {
-//      tamTexto *= alturaAreaTexto/alturaTexto;
+      //      tamTexto *= alturaAreaTexto/alturaTexto;
       tamTexto *= 0.9;                            // Reduz o tamanho da fonte em 90%
-                                                  //[TODO] Essa redução determina a velocidade de animação
-                                                  // do texto preenchendo a área de texto. Melhor fazer
-                                                  // isso como um parâmetro de velocidade.
+      //[TODO] Essa redução determina a velocidade de animação
+      // do texto preenchendo a área de texto. Melhor fazer
+      // isso como um parâmetro de velocidade.
     }
     coubeNaAreaTexto = false;
   }
@@ -675,15 +676,17 @@ void desenhaConexoesTag (int i, PVector p1, PVector p2, int brilho, float grossu
 
 void desenhaTexto() {
   for (int i=0; i<texto.length(); i++) {
-    if (caracteresInfo[i] != null) {
-      float posY = (posTexto.y-tamTexto*(numLinhas+1)/2.0)*height+caracteresInfo[i].pos.y*height;
-      if (posY < height && posY > -tamTexto*height) {
-        textSize(tamTexto*height);
-        rectMode(CORNER);
-        textAlign(LEFT);
-        fill(255);
-        verificaFonte (tamTexto, false);
-        text(texto.charAt(i), caracteresInfo[i].pos.x*width, posY);
+    if (caracteresInfo.length > 0) {
+      if (caracteresInfo[i] != null) {
+        float posY = (posTexto.y-tamTexto*(numLinhas+1)/2.0)*height+caracteresInfo[i].pos.y*height;
+        if (posY < height && posY > -tamTexto*height) {
+          textSize(tamTexto*height);
+          rectMode(CORNER);
+          textAlign(LEFT);
+          fill(255);
+          verificaFonte (tamTexto, false);
+          text(texto.charAt(i), caracteresInfo[i].pos.x*width, posY);
+        }
       }
     }
   }
@@ -855,4 +858,8 @@ static final javax.swing.JFrame getJFrame(final PSurface surf) {
     (javax.swing.JFrame)
     ((processing.awt.PSurfaceAWT.SmoothCanvas)
     surf.getNative()).getFrame();
+}
+
+void threadLeitura () {
+  arquivo.threadLeitura();
 }

@@ -25,7 +25,6 @@ class ArquivoTexto {
   void threadLeitura () {
     while (!pararThread) {
       leia();
-      
       delay(int(1000/(float) LEITURAS_POR_SEG));
     }
     rodandoThread = false;
@@ -35,8 +34,12 @@ class ArquivoTexto {
   boolean leia() {
     boolean retorno = false;
     linhas = loadStrings(nomeDoArquivo);
+    texto = "";
     if (linhas != null) {
-    for ()
+      for (int i=0; i<linhas.length; i++) {
+        texto += linhas[i] + "\n";
+      }
+      atualizarLeioute = true;
       retorno = true;
     } else {
       println("Erro ao ler arquivo.");
