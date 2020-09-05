@@ -1,4 +1,4 @@
-class ArquivoTexto {
+class HTTP {
   String[] linhas;
   String texto = "";
   String nomeDoArquivo;
@@ -7,7 +7,7 @@ class ArquivoTexto {
   boolean rodandoThread = false;
   boolean pararThread = false;
 
-  ArquivoTexto (String nome) {
+  HTTP (String nome) {
     nomeDoArquivo = nome;
   }
   

@@ -26,8 +26,8 @@ import java.util.Arrays;
 String texto = "";
 boolean atualizarLeioute = true;
 
-String NOME_ARQUIVO_TEXTO = "arquivo.txt";
-ArquivoTexto arquivo;
+String URL = "http://www.processing.org";
+HTTP pagina;
 
 String quebraLinha = "\n\r\f";
 String separadoresPalavras = "'\"?!:,.;/() \b"+quebraLinha;
@@ -121,13 +121,13 @@ void setup()
 
   limpaTudo();
 
-  arquivo = new ArquivoTexto (NOME_ARQUIVO_TEXTO);
-  arquivo.iniciaThreadLeitura();
+  pagina = new HTTP (URL);
+  pagina.iniciaThreadLeitura();
 }
 
 void draw()
 {
-  texto = arquivo.texto;
+  texto = pagina.texto;
 
   background(0);
   colorMode(HSB);
@@ -861,5 +861,5 @@ static final javax.swing.JFrame getJFrame(final PSurface surf) {
 }
 
 void threadLeitura () {
-  arquivo.threadLeitura();
+  pagina.threadLeitura();
 }
