@@ -107,12 +107,12 @@ void setup()
   size(800,600);
   //fullScreen();
   background (0);
-  fonte500 = loadFont("Cantarell-Bold-500.vlw");
-  fonte48 = loadFont("Cantarell-Bold-48.vlw");
-  fonte8 = loadFont("Cantarell-Bold-8.vlw");
-  fonte500b = loadFont("Cantarell-Bold-500.vlw");
-  fonte48b = loadFont("Cantarell-Bold-48.vlw");
-  fonte8b = loadFont("Cantarell-Bold-8.vlw");
+  fonte500 = loadFont("DejaVuSans-500.vlw");
+  fonte48 = loadFont("DejaVuSans-48.vlw");
+  fonte8 = loadFont("DejaVuSans-8.vlw");
+  fonte500b = loadFont("DejaVuSans-500.vlw");
+  fonte48b = loadFont("DejaVuSans-48.vlw");
+  fonte8b = loadFont("DejaVuSans-8.vlw");
   textFont (fonte500, tamTexto);
   textAlign(CENTER);
 
