@@ -130,13 +130,9 @@ void setup()
 void draw()
 {
   if (tcpip.leia()) {
-    texto = texto + " " + tcpip.texto + " ojsdoifjosid";
+    texto = texto + " " + tcpip.texto;
     atualizarLeioute = true;
   }
-  
-  //texto = "teste";
-  
-  //println("texto="+texto);
 
   background(0);
   colorMode(HSB);
