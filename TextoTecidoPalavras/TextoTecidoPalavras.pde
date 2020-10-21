@@ -123,15 +123,17 @@ void setup()
 
   limpaTudo();
 
-  Client c = new Client(this, "127.0.0.1", 3000);
-  tcpip = new TCPIP (c);
+  Server s = new Server(this, 3000);
+  tcpip = new TCPIP (s);
 }
 
 void draw()
 {
-  if (tcpip.leia()) {
-    texto = texto + " " + tcpip.texto;
-    atualizarLeioute = true;
+  if (millis()%30 == 0) { 
+    if (tcpip.leia()) {
+      texto = texto + " " + tcpip.texto;
+      atualizarLeioute = true;
+    }
   }
 
   background(0);
