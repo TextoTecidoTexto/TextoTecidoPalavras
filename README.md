@@ -5,6 +5,16 @@ Localiza palavras mais frequentes num texto.
 
 https://www.youtube.com/watch?v=t1SRuC2Z5U8
 
+# Comandos de teclas
+- Ctrl + v: cola texto da área de transferência (Clipboard)
+- Ctrl + t: ajusta tamanho do texto sobre qual o mouse está posicionado.
+- Ctrl + l: liga ou desliga as linhas de conexões (tecido)
+- Ctrl + mouse wheel: aumenta ou diminui o tamanho do texto.
+- Ctrl + delete: apaga todo texto.
+- mouse wheel: sobe ou desce o texto.
+- clique com botao esquerdo nas palavras seleciona ou desseleciona.
+- clique com botao direito nas palavras adiciona para a lista palavras ignoradas e ocultadas.
+
 ## Versão para Windows e Linux (sem precisar instalar Processing)
 - Baixe o arquivo .zip para seu sistema operacional (Linux ou Windows):
 https://github.com/jarbasjacome/TextoTecidoPalavras/releases
