@@ -5,7 +5,7 @@ Localiza palavras mais frequentes num texto.
 
 https://www.youtube.com/watch?v=t1SRuC2Z5U8
 
-# Comandos de teclas
+## Comandos de teclado e mouse
 - Ctrl + v: cola texto da área de transferência (Clipboard)
 - Ctrl + t: ajusta tamanho do texto sobre qual o mouse está posicionado.
 - Ctrl + l: liga ou desliga as linhas de conexões (tecido)
