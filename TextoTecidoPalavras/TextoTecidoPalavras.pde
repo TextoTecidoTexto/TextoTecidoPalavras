@@ -1,6 +1,7 @@
 /* Copyright (c) 2020 Jarbas Jácome and others. //<>//
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
- * WARRANTIES, see the file, "LICENSE.txt," in this distribution.  */
+ * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
+ */
 
 // Ctrl + v: cola texto da área de transferência (Clipboard)
 // Ctrl + t: ajusta tamanho do texto sobre qual o mouse está posicionado.
@@ -107,12 +108,12 @@ void setup()
   size(800,600);
   //fullScreen();
   background (0);
-  fonte500 = loadFont("DejaVuSans-500.vlw");
-  fonte48 = loadFont("DejaVuSans-48.vlw");
-  fonte8 = loadFont("DejaVuSans-8.vlw");
-  fonte500b = loadFont("DejaVuSans-500.vlw");
-  fonte48b = loadFont("DejaVuSans-48.vlw");
-  fonte8b = loadFont("DejaVuSans-8.vlw");
+  fonte500 = loadFont("Cantarell-Bold-500.vlw");
+  fonte48 = loadFont("Cantarell-Bold-48.vlw");
+  fonte8 = loadFont("Cantarell-Bold-8.vlw");
+  fonte500b = loadFont("Cantarell-Bold-500.vlw");
+  fonte48b = loadFont("Cantarell-Bold-48.vlw");
+  fonte8b = loadFont("Cantarell-Bold-8.vlw");
   textFont (fonte500, tamTexto);
   textAlign(CENTER);
 
@@ -354,7 +355,7 @@ boolean analisaTexto() {
 
   // Guarda o índice da palavra em textoSeparadoPorPalavras que está sendo analisada
   // em cada iteração do for.
-  int palavraAtual = 0;
+  int indicePalavraAtual = 0;
   
   // Para auxiliar a contagem de freqüência das palavras, inicia estrutura palavrasComIndice
   // que guarda as palavras encontradas, sem repetí-las e guardando o índice correspondente no
@@ -383,7 +384,7 @@ boolean analisaTexto() {
   PVector posVarredura = new PVector(0, alturaTexto);  
   
   // Informa se o caractere da iteração anterior era um separador de palavras.
-  boolean caracAnteriorEhSeparador = true;
+  boolean caracAnteriorSeparaPalavras = true;
 
   // Esse for percorre os caracteres da String texto.
   // Quando detecta que o texto ultrapassa a área de texto, esse laço é interrompido
@@ -407,7 +408,7 @@ boolean analisaTexto() {
       // se é separador de palavras, índice da palavra a qual esse caractere pertence (palavraAtual),
       // e a linha a qual pertence (numLinhas informa qual a linha atual)
       caracteresInfo[i] = new Caractere(new PVector(posVarredura.x, posVarredura.y), 
-        larguraCaracPx, caracAtualSeparaPalavras, palavraAtual, numLinhas);
+        larguraCaracPx, caracAtualSeparaPalavras, indicePalavraAtual, numLinhas);
 
       posVarredura.y += tamTexto; // Incrementa na altura de uma linha o "cursor" que posiciona os caracteres.
       posVarredura.x = 0;         // Como ocorre uma quebra de linha a posição X é no canto esquerdo (=0); 
@@ -421,13 +422,13 @@ boolean analisaTexto() {
       }
     } else { //Se caractere atual não quebra linha
       caracteresInfo[i] = new Caractere(new PVector(posVarredura.x, posVarredura.y), 
-        larguraCaracPx, caracAtualSeparaPalavras, palavraAtual, numLinhas);
+        larguraCaracPx, caracAtualSeparaPalavras, indicePalavraAtual, numLinhas);
       larguraLinhaPx += larguraCaracPx;        // incrementa o contador de largura da linha em pixels.
       posVarredura.x += larguraCaracPx/width;  // incrementa a posição x do "cursor" que posiciona os caracteres.
       if (larguraLinhaPx > larguraAreaTexto*width) {          //Linha ultrapasssou a largura da área do texto.
         if (!caracAtualSeparaPalavras) {       // se o caractere atual não é um separador de palavras 
-          if (palavraAtual > 0) {
-            if (textWidth(textoSeparadoPorPalavras[palavraAtual-1]) > larguraAreaTexto*width) {
+          if (indicePalavraAtual > 0) {
+            if (textWidth(textoSeparadoPorPalavras[indicePalavraAtual-1]) > larguraAreaTexto*width) {
               // Entra aqui se a própria palavra (não apenas a linha) ultrapassa a largura da área de texto.
               // calcula um novo tamanho de texto suficientemente pequeno para caber na largura essa palavra.
               tamTexto *= larguraAreaTexto*width/(float)larguraLinhaPx;
@@ -449,12 +450,13 @@ boolean analisaTexto() {
               for (; j<=i; j++) {                            //Corrige as posições dos caracteres da palavra.
                 caracteresInfo[j].pos.x = posVarredura.x;
                 caracteresInfo[j].pos.y = posVarredura.y;
-                caracteresInfo[j].linha++;
-                posVarredura.x += caracteresInfo[j].larguraPx/width;
-                larguraLinhaPx += caracteresInfo[j].larguraPx;
+                caracteresInfo[j].linha++;                   //Corrige a linha do caractere movido para baixo.
+                posVarredura.x += caracteresInfo[j].larguraPx/width;    //move o "cursor" para direita.
+                larguraLinhaPx += caracteresInfo[j].larguraPx;          //corrige a largura da linha atual.
               }
               // Como ele moveu a palavra que ultrapassou a largura, para baixo, precisa adicionar uma nova linha
-              // e reanalisar o texto, caso esteja no modo de ajuste automático para exibir texto completo.
+              // e reanalisar o texto no próximo draw(), caso esteja no modo de ajuste automático para exibir
+              // texto completo.
               if (!adicionarLinha(alturaAreaTexto)) {
                 if (ajustarParaExibirTextoCompleto) {
                   retorno = false;
@@ -468,31 +470,35 @@ boolean analisaTexto() {
     }
 
     // Calcular frequencia das tags
-    if (!caracAtualSeparaPalavras) {         //Caractere atual NÃO É separador de palavras.
-      if (caracAnteriorEhSeparador) {
-        int indicePalavra = palavraAtual;
-        if (palavrasComIndice.get(textoSeparadoPorPalavras[indicePalavra])==null) {
-          if (!palavrasIgnoradas.contains(textoSeparadoPorPalavras[indicePalavra])) {
-            listaDePalavras[numPalavras] = new Palavra(indicePalavra, i);
-            palavrasComIndice.put(textoSeparadoPorPalavras[indicePalavra], numPalavras);
+    if (!caracAtualSeparaPalavras) {          //Caractere atual NÃO É separador de palavras.
+      if (caracAnteriorSeparaPalavras) {      //Caractere anterior É separador de palavras.
+        if (palavrasComIndice.get(textoSeparadoPorPalavras[indicePalavraAtual])==null) {
+          // A palavra atual ainda não foi adicionada na lista de palavras sem repetição.
+          if (!palavrasIgnoradas.contains(textoSeparadoPorPalavras[indicePalavraAtual])) {
+            // A apalavra atual não foi adicionada na lista de palavras ignoradas.
+            listaDePalavras[numPalavras] = new Palavra(indicePalavraAtual, i);      // Adiciona palavra na lista.
+            // Adiciona palavra na estrutura auxiliar de contagem.
+            palavrasComIndice.put(textoSeparadoPorPalavras[indicePalavraAtual], numPalavras);
             numPalavras++;
             numConexoes++;
           }
         } else {
-          listaDePalavras[palavrasComIndice.get(textoSeparadoPorPalavras[indicePalavra])].adicionarAparicao(i);
+          // A palavra atual já foi adicionada na lista de palavras sem repetição.
+          // Então, basta incrementar o número de vezes que ela aparece (freqüência).
+          listaDePalavras[palavrasComIndice.get(textoSeparadoPorPalavras[indicePalavraAtual])].adicionarAparicao(i);
           numConexoes++;
         }
-        palavraAtual++;
+        indicePalavraAtual++;    // Incrementa para analisar a próxima palavra.
       }
-      caracAnteriorEhSeparador = false;     //Para próxima iteração do for.
+      caracAnteriorSeparaPalavras = false;     // Informação para próxima iteração do for.
     } else {
-      caracAnteriorEhSeparador = true;      //Para próxima iteração do for.
+      caracAnteriorSeparaPalavras = true;      // Informação para próxima iteração do for.
     }
   }
 
-  // Ordena tags por frequencia decrescente.
+  // Ordena lista de palavras por frequencia decrescente.
   Arrays.sort(listaDePalavras, 0, numPalavras);
-
+  
   if (palavraSelecionadaAtual == null && palavrasSelecionadas.size() > 0) {
     palavraSelecionadaAtual = palavrasSelecionadas.first();
   }
