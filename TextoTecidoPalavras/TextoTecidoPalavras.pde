@@ -24,11 +24,14 @@ import java.util.TreeSet;
 import java.util.Map;
 import java.util.Arrays;
 
-String texto = "";
+// Referência global à string produzida pela Caixa de Texto e analisada pelo ProcessadorDeTexto
+String Texto = "";
+
+ProcessadorDeTexto processador;
+
+// Caixa de Texto
 boolean atualizarLeioute = true;
 
-String quebraLinha = "\n\r\f";
-String separadoresPalavras = "'\"?!:,.;/() \b"+quebraLinha;
 String[] textoSeparadoPorPalavras;
 Palavra[] listaDePalavras;
 String[] IGNORAR = {};
@@ -118,6 +121,8 @@ void setup()
   textAlign(CENTER);
 
   limpaTudo();
+  
+  processador = new ProcessadorDeTexto();
 }
 
 void draw()
@@ -176,7 +181,7 @@ void desenhaStatusTecladoMouse() {
 }
 
 void limpaTudo() {
-  texto = "";
+  Texto = "";
   atualizarLeioute = true;
   posTexto = new PVector(margemDirTexto-margemEsqTexto, (margemInfTexto-margemSupTexto)/2);
   novaPosTexto = new PVector(posTexto.x, posTexto.y);
@@ -284,7 +289,7 @@ void keyPressed() {
   }
   if (ctrl) {
     if (keyCode == "v".charAt(0) || keyCode == "V".charAt(0)) {
-      texto = texto + GetTextFromClipboard();
+      Texto = Texto + GetTextFromClipboard();
       statusTecla = "V";
       exibirStatusTecladoMouse = true;
       atualizarLeioute = true;
@@ -304,8 +309,8 @@ void keyPressed() {
     }
   } else {
     if (key == BACKSPACE) {
-      if (texto.length()>0) {
-        texto = texto.substring(0, texto.length()-1);
+      if (Texto.length()>0) {
+        Texto = Texto.substring(0, Texto.length()-1);
         atualizarLeioute = true;
       }
     } else if (keyCode == LEFT) {
@@ -325,7 +330,7 @@ void keyPressed() {
       exibirStatusTecladoMouse = true;
       irParaLinha (linhaAtual+1);
     } else if (key != CODED) {
-      texto = texto + key;
+      Texto = Texto + key;
       atualizarLeioute = true;
     }
   }
@@ -337,10 +342,16 @@ void keyReleased() {
       ctrl = false;
     }
   }
-} 
+}
+
+// Posiciona os caracteres na área de texto.
+// [TODO] continuar a separar funções gráficas de funções de processamento.
+boolean posicionaCaracteres() {
+  boolean retorno = true;
+  return retorno;
+}
 
 // Identifica e conta a frequência de palavras.
-// Posiciona os caracteres na área de texto.
 // Quando o texto não cabe na área de texto, reajusta o tamanho e interrompe (break no for) a análise.
 // Essa interrupção (break no for) que dá o efeito de animação de preenchimento mais perceptível
 // quando um texto grande é colado.
@@ -351,7 +362,7 @@ boolean analisaTexto() {
   // Para auxiliar a contagem de freqüência das palavras, 
   // Carrega todas as palavras que aparecem no texto no array palavras
   // mantendo a ordem em que aparecem e as repetições.
-  textoSeparadoPorPalavras = trim(splitTokens(texto, separadoresPalavras));
+  textoSeparadoPorPalavras = trim(splitTokens(Texto, processador.separadoresPalavras));
 
   // Guarda o índice da palavra em textoSeparadoPorPalavras que está sendo analisada
   // em cada iteração do for.
@@ -366,13 +377,13 @@ boolean analisaTexto() {
   numLinhas = 0;
 
   // Inicia o array que guarda as posições dos caracteres em relação à tela (normalizada, entre 0 e 1).
-  caracteresInfo = new Caractere[texto.length()];
+  caracteresInfo = new Caractere[Texto.length()];
 
   // Número total de conexoes.
   numConexoes = 0;
 
   // Inicia lista de palavras encontradas, sem repetição.
-  listaDePalavras = new Palavra[texto.length()];
+  listaDePalavras = new Palavra[Texto.length()];
   
   numPalavras = 0;  // Número total de palavras sem contar as repetições.
 
@@ -390,20 +401,20 @@ boolean analisaTexto() {
   // Quando detecta que o texto ultrapassa a área de texto, esse laço é interrompido
   // e o texto é desenhado incompleto, recomeçando no próximo loop, já com o tamanho ajustado,
   // criando o efeito de animação da área de texto sendo preenchida, ao passar dos quadros.
-  for (int i=0; i<texto.length(); i++) {
+  for (int i=0; i<Texto.length(); i++) {
     //Checa se o caractere atual separa palavras:
     boolean caracAtualSeparaPalavras = false;
-    if (match(""+texto.charAt(i), "["+separadoresPalavras+"]") != null) {
+    if (match(""+Texto.charAt(i), "["+processador.separadoresPalavras+"]") != null) {
       caracAtualSeparaPalavras = true;
     }
 
     //Calcula qual deverá ser a posição do caractere atual em relação à tela.
     textSize(tamTexto*height); // define o tamanho do texto para textWidth() poder calcular
                                // a largura na tela do caractere atual.
-    float larguraCaracPx = textWidth(texto.charAt(i));      //Largura que o caractere atual ocupará na tela em pixels
+    float larguraCaracPx = textWidth(Texto.charAt(i));      //Largura que o caractere atual ocupará na tela em pixels
   
     //Se caractere atual quebra linha
-    if (match(""+texto.charAt(i), "["+quebraLinha+"]") != null) {
+    if (match(""+Texto.charAt(i), "["+processador.quebraLinha+"]") != null) {
       // Cria um novo caractere informando a posição do posVarredura, largura q o caractere ocupa,
       // se é separador de palavras, índice da palavra a qual esse caractere pertence (palavraAtual),
       // e a linha a qual pertence (numLinhas informa qual a linha atual)
@@ -673,7 +684,7 @@ void desenhaConexoesTag (int i, PVector p1, PVector p2, int brilho, float grossu
 }
 
 void desenhaTexto() {
-  for (int i=0; i<texto.length(); i++) {
+  for (int i=0; i<Texto.length(); i++) {
     if (caracteresInfo[i] != null) {
       float posY = (posTexto.y-tamTexto*(numLinhas+1)/2.0)*height+caracteresInfo[i].pos.y*height;
       if (posY < height && posY > -tamTexto*height) {
@@ -682,7 +693,7 @@ void desenhaTexto() {
         textAlign(LEFT);
         fill(255);
         verificaFonte (tamTexto, false);
-        text(texto.charAt(i), caracteresInfo[i].pos.x*width, posY);
+        text(Texto.charAt(i), caracteresInfo[i].pos.x*width, posY);
       }
     }
   }
