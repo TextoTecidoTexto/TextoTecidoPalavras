@@ -8,4 +8,6 @@
 class ProcessadorDeTexto {
   String quebraLinha = "\n\r\f";
   String separadoresPalavras = "'\"?!:,.;/() \b"+quebraLinha;
+  String[] textoSeparadoPorPalavras;
+
 }

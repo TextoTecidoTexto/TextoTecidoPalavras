@@ -32,7 +32,6 @@ ProcessadorDeTexto processador;
 // Caixa de Texto
 boolean atualizarLeioute = true;
 
-String[] textoSeparadoPorPalavras;
 Palavra[] listaDePalavras;
 String[] IGNORAR = {};
 HashSet<String> palavrasIgnoradas;
@@ -352,9 +351,13 @@ boolean posicionaCaracteres() {
 }
 
 // Identifica e conta a frequência de palavras.
+
+//[TODO] tirar isso de analisaTexto()
 // Quando o texto não cabe na área de texto, reajusta o tamanho e interrompe (break no for) a análise.
 // Essa interrupção (break no for) que dá o efeito de animação de preenchimento mais perceptível
 // quando um texto grande é colado.
+
+// [TODO] mandar para ProcessadorDeTexto
 boolean analisaTexto() {
   // Retorna verdadeiro se conseguiu encaixar o texto inteiro na área sem precisar ajustar tamanho.
   boolean retorno = true;
@@ -362,7 +365,7 @@ boolean analisaTexto() {
   // Para auxiliar a contagem de freqüência das palavras, 
   // Carrega todas as palavras que aparecem no texto no array palavras
   // mantendo a ordem em que aparecem e as repetições.
-  textoSeparadoPorPalavras = trim(splitTokens(Texto, processador.separadoresPalavras));
+  processador.textoSeparadoPorPalavras = trim(splitTokens(Texto, processador.separadoresPalavras));
 
   // Guarda o índice da palavra em textoSeparadoPorPalavras que está sendo analisada
   // em cada iteração do for.
@@ -439,7 +442,7 @@ boolean analisaTexto() {
       if (larguraLinhaPx > larguraAreaTexto*width) {          //Linha ultrapasssou a largura da área do texto.
         if (!caracAtualSeparaPalavras) {       // se o caractere atual não é um separador de palavras 
           if (indicePalavraAtual > 0) {
-            if (textWidth(textoSeparadoPorPalavras[indicePalavraAtual-1]) > larguraAreaTexto*width) {
+            if (textWidth(processador.textoSeparadoPorPalavras[indicePalavraAtual-1]) > larguraAreaTexto*width) {
               // Entra aqui se a própria palavra (não apenas a linha) ultrapassa a largura da área de texto.
               // calcula um novo tamanho de texto suficientemente pequeno para caber na largura essa palavra.
               tamTexto *= larguraAreaTexto*width/(float)larguraLinhaPx;
@@ -483,20 +486,20 @@ boolean analisaTexto() {
     // Calcular frequencia das tags
     if (!caracAtualSeparaPalavras) {          //Caractere atual NÃO É separador de palavras.
       if (caracAnteriorSeparaPalavras) {      //Caractere anterior É separador de palavras.
-        if (palavrasComIndice.get(textoSeparadoPorPalavras[indicePalavraAtual])==null) {
+        if (palavrasComIndice.get(processador.textoSeparadoPorPalavras[indicePalavraAtual])==null) {
           // A palavra atual ainda não foi adicionada na lista de palavras sem repetição.
-          if (!palavrasIgnoradas.contains(textoSeparadoPorPalavras[indicePalavraAtual])) {
+          if (!palavrasIgnoradas.contains(processador.textoSeparadoPorPalavras[indicePalavraAtual])) {
             // A apalavra atual não foi adicionada na lista de palavras ignoradas.
             listaDePalavras[numPalavras] = new Palavra(indicePalavraAtual, i);      // Adiciona palavra na lista.
             // Adiciona palavra na estrutura auxiliar de contagem.
-            palavrasComIndice.put(textoSeparadoPorPalavras[indicePalavraAtual], numPalavras);
+            palavrasComIndice.put(processador.textoSeparadoPorPalavras[indicePalavraAtual], numPalavras);
             numPalavras++;
             numConexoes++;
           }
         } else {
           // A palavra atual já foi adicionada na lista de palavras sem repetição.
           // Então, basta incrementar o número de vezes que ela aparece (freqüência).
-          listaDePalavras[palavrasComIndice.get(textoSeparadoPorPalavras[indicePalavraAtual])].adicionarAparicao(i);
+          listaDePalavras[palavrasComIndice.get(processador.textoSeparadoPorPalavras[indicePalavraAtual])].adicionarAparicao(i);
           numConexoes++;
         }
         indicePalavraAtual++;    // Incrementa para analisar a próxima palavra.
@@ -538,6 +541,7 @@ boolean adicionarLinha(float alturaAreaTexto) {
   return coubeNaAreaTexto;
 }
 
+
 void ajustaPosCaracteres() {
   if (posTexto.y != novaPosTexto.y) {
     posTexto.y += (novaPosTexto.y - posTexto.y)/(float)5;
@@ -568,14 +572,14 @@ void ajustaPosCaracteres() {
   tagMouseEmCima = -1;
   ultimaTagVisivel = -1;
   float tamEspectroCores = 1;
-  if (textoSeparadoPorPalavras.length*tamTags < 1) {             //Ajusta para diminuir tamanho do expectro caso seja menor q a tela.
-    tamEspectroCores = textoSeparadoPorPalavras.length*tamTags;
+  if (processador.textoSeparadoPorPalavras.length*tamTags < 1) {             //Ajusta para diminuir tamanho do expectro caso seja menor q a tela.
+    tamEspectroCores = processador.textoSeparadoPorPalavras.length*tamTags;
     //posVarredura.y = 0.5 - tamEspectroCores/2.0;
   }
   for (int i=0; i<numPalavras; i++) {
-    if (textoSeparadoPorPalavras != null) {
+    if (processador.textoSeparadoPorPalavras != null) {
       if (listaDePalavras[i] != null) {
-        if (textoSeparadoPorPalavras[listaDePalavras[i].palavra] != null) {
+        if (processador.textoSeparadoPorPalavras[listaDePalavras[i].palavra] != null) {
           float alturaTag = listaDePalavras[i].frequencia*tamTags;
 
           //posVarredura.y -= 0.5;
@@ -659,7 +663,7 @@ void desenhaConexoesTag (int i, PVector p1, PVector p2, int brilho, float grossu
     p2.x = caracteresInfo[caracIndice].pos.x;
     p2.y = caracteresInfo[caracIndice].pos.y;
     textSize(tamTexto*height); //para posicionar linha no meio da palavra.
-    float larguraPalavraPx = textWidth(textoSeparadoPorPalavras[listaDePalavras[i].palavra]);
+    float larguraPalavraPx = textWidth(processador.textoSeparadoPorPalavras[listaDePalavras[i].palavra]);
     stroke(listaDePalavras[i].matiz, 255, brilho);
     strokeWeight(tamTexto*height*grossura);
     line(p1.x*width, p1.y*height, 
@@ -727,7 +731,7 @@ void desenhaTags() {
     rectMode(CENTER);
     verificaFonte(alturaTag, true);
     fill(255); 
-    text(textoSeparadoPorPalavras[listaDePalavras[i].palavra]+" ("+listaDePalavras[i].frequencia+")", 
+    text(processador.textoSeparadoPorPalavras[listaDePalavras[i].palavra]+" ("+listaDePalavras[i].frequencia+")", 
       listaDePalavras[i].pos.x*width, listaDePalavras[i].pos.y*height);
   }
 }
@@ -743,7 +747,7 @@ boolean mouseEmCima ( float ret1x, float ret1y, float ret2x, float ret2y) {
 void mouseReleased() {
   if (mouseButton == RIGHT) {
     if (tagMouseEmCima > -1) {
-      palavrasIgnoradas.add(textoSeparadoPorPalavras[listaDePalavras[tagMouseEmCima].palavra]);
+      palavrasIgnoradas.add(processador.textoSeparadoPorPalavras[listaDePalavras[tagMouseEmCima].palavra]);
       if (tagsSelecionadas.contains(tagMouseEmCima)) {
         tagsSelecionadas.remove(Integer.valueOf(tagMouseEmCima));
       }
